@@ -60,6 +60,12 @@ struct Vector<T, 2>
 template<typename T>
 struct Vector<T, 3>
 {
+    Vector(T x, T y, T z)
+        : x(x), y(y), z(z)
+    {}
+    Vector()
+        : x(), y(), z()
+    {}
     union
     {
         struct { T x, y, z;   };
@@ -74,6 +80,11 @@ struct Vector<T, 3>
     {
         assert(i < 3 && i >= 0);
         return val[i];
+    }
+
+    Vector<T, 3> operator* (const Vector<T, 3>& rhs) const
+    {
+        return Vector<T, 3>(y * rhs.z - rhs.y * z, - (x * rhs.z - rhs.x * z), x * rhs.y - rhs.x * y);
     }
 };
 
@@ -150,3 +161,20 @@ Matrix<T, R1, C2> operator*(const Matrix<T, R1, C1>& lhs, const Matrix<T, C1, C2
     return res;
 }
 
+typedef Vector<float, 2> vec2f;
+typedef Vector<int, 2>   vec2i;
+typedef Vector<float, 3> vec3f;
+typedef Vector<int, 3>   vec3i;
+
+vec3f barycentric(vec2f a, vec2f b, vec2f c, vec2f p)
+{
+    vec3f s[2];
+    for (int i = 0;i < 2; ++i)
+    {
+        s[i].x = b[i] - a[i];
+        s[i].y = c[i] - a[i];
+        s[i].z = a[i] - p[i];
+    }
+    // vec3f u = 
+    return vec3f();
+}
