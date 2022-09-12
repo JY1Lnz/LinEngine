@@ -1,6 +1,9 @@
+#pragma once
+
 // 数学库
 #include <vector>
 #include <assert.h>
+#include <initializer_list>
 
 template<typename T, size_t L>
 struct Vector
@@ -39,6 +42,20 @@ private:
 template<typename T>
 struct Vector<T, 2>
 {
+    Vector(std::initializer_list<T> l)
+    {
+        assert(l.size() == 2);
+        for (int i = 0; i < 2; ++i)
+        {
+            val[i] = *(l.begin() + i);
+        }
+    }
+    Vector(T x, T y)
+        : x(x), y(y)
+    {}
+    Vector()
+        : x(), y()
+    {}
     union 
     {
         struct { T x, y;   };
@@ -60,6 +77,14 @@ struct Vector<T, 2>
 template<typename T>
 struct Vector<T, 3>
 {
+    Vector(std::initializer_list<T> l)
+    {
+        assert(l.size() == 3);
+        for (int i = 0; i < 3; ++i)
+        {
+            val[i] = *(l.begin() + i);
+        }
+    }
     Vector(T x, T y, T z)
         : x(x), y(y), z(z)
     {}
@@ -82,7 +107,7 @@ struct Vector<T, 3>
         return val[i];
     }
 
-    Vector<T, 3> operator* (const Vector<T, 3>& rhs) const
+    Vector<T, 3> operator ^ (const Vector<T, 3>& rhs) const
     {
         return Vector<T, 3>(y * rhs.z - rhs.y * z, - (x * rhs.z - rhs.x * z), x * rhs.y - rhs.x * y);
     }
@@ -166,15 +191,27 @@ typedef Vector<int, 2>   vec2i;
 typedef Vector<float, 3> vec3f;
 typedef Vector<int, 3>   vec3i;
 
-vec3f barycentric(vec2f a, vec2f b, vec2f c, vec2f p)
+vec3f barycentric2D(vec2f a, vec2f b, vec2f c, vec2f p)
 {
-    vec3f s[2];
-    for (int i = 0;i < 2; ++i)
-    {
-        s[i].x = b[i] - a[i];
-        s[i].y = c[i] - a[i];
-        s[i].z = a[i] - p[i];
-    }
-    // vec3f u = 
-    return vec3f();
+    // 这里是没有矫正过的插值，没有使用z轴去计算
+    vec3f res;
+    res.x = ((p.x - c.x) * (c.y - b.y) - (p.y - c.y) * (c.x - b.x)) /
+        ((a.x - c.x) * (c.y - b.y) - (a.y - c.y) * (c.x - b.x));
+    res.y = ((p.y - c.y) * (a.x - c.x) - (p.x - c.x) * (a.y - c.y)) /
+        ((b.y - c.y) * (a.x - c.x) - (b.x - c.x) * (a.y - c.y));
+    res.z = 1 - res.x - res.y;
+    return res;
+}
+
+
+vec3f barycentric2D(vec3f a, vec3f b, vec3f c, vec3f p)
+{
+    // 这里是没有矫正过的插值，没有使用z轴去计算
+    vec3f res;
+    res.x = ((p.x - c.x) * (c.y - b.y) - (p.y - c.y) * (c.x - b.x)) /
+        ((a.x - c.x) * (c.y - b.y) - (a.y - c.y) * (c.x - b.x));
+    res.y = ((p.y - c.y) * (a.x - c.x) - (p.x - c.x) * (a.y - c.y)) /
+        ((b.y - c.y) * (a.x - c.x) - (b.x - c.x) * (a.y - c.y));
+    res.z = 1 - res.x - res.y;
+    return res;
 }
