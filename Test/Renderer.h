@@ -5,6 +5,7 @@
 #include "Color.h"
 #include "Triangle.h"
 #include "Window.h"
+#include "Model.h"
 
 class Renderer
 {
@@ -45,8 +46,29 @@ public:
         }
     }
 
+    void DrawModel()
+    {
+        for (const auto& model : model_list_)
+        {
+            for (int i = 0; i < model.GetFaceSize(); ++i)
+            {
+                Triangle tr;
+                for (int j = 0; j < 3; ++j)
+                    tr[j] = model.GetVertex(i, j);
+                DrawTriangle(tr);
+            }
+        }
+    }
+
+    bool AddModel(const std::string& model_name)
+    {
+        model_list_.emplace_back(model_name);
+        return true;
+    }
+
 private:
     HDC screenHDC;
+    std::vector<Model> model_list_;
 
 private:
     int width_;

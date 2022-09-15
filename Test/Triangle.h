@@ -45,6 +45,15 @@ public:
         return true;
     }
 
+    vec3f&          operator[](int i)
+    {
+        return val_[i];
+    }
+    const vec3f& operator[](int i) const
+    {
+        return val_[i];
+    }
+
     void ForEach(std::function<void(const vec3f& v)> func) const
     {
         for (int i = 0; i < 3; ++i)
