@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <initializer_list>
 
+#define LIN_PI 3.1415926
+
 template<typename T, size_t L>
 struct Vector
 {
@@ -146,6 +148,13 @@ public:
         for (int i = 0;i < row; ++i) res[i][i] = 1;
         return res;
     }
+    Matrix(std::initializer_list<Vector<T, col>> initialize)
+    {
+        for (int i = 0; i < row; ++i)
+        {
+            val[i] = initialize[i];
+        }
+    }
     Matrix(const Matrix<T, row, col>& rhs)
     {
         for (int i = 0;i < row; ++i)
@@ -190,6 +199,9 @@ typedef Vector<float, 2> vec2f;
 typedef Vector<int, 2>   vec2i;
 typedef Vector<float, 3> vec3f;
 typedef Vector<int, 3>   vec3i;
+typedef Vector<float, 4> vec4f;
+
+typedef Matrix<float, 4, 4> m4f;
 
 vec3f barycentric2D(vec2f a, vec2f b, vec2f c, vec2f p)
 {

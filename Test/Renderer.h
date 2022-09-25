@@ -6,6 +6,7 @@
 #include "Triangle.h"
 #include "Window.h"
 #include "Model.h"
+#include "Math.h"
 
 class Renderer
 {
@@ -65,6 +66,37 @@ public:
         model_list_.emplace_back(model_name);
         return true;
     }
+
+    void CalModel(float angle, float scale)
+    {
+        angle = angle * LIN_PI / 180.f;
+
+        m4f rotation_m({
+            {cos(angle), 0, sin(angle), 0},
+            {0, 1, 0, 0},
+            {-sin(angle), 0, cos(angle), 0},
+            {0, 0, 0, 1}
+            });
+
+        m4f scale_m({
+            {scale, 0, 0, 0},
+            {0, scale, 0, 0},
+            {0, 0, scale, 0},
+            {0, 0, 0, 1}
+            });
+        
+
+        m4f translate_m({
+
+            });
+    }
+
+
+
+private:
+    m4f model;      // 模型矩阵
+    m4f view;       // 视口矩阵
+    m4f projection; // 投影矩阵
 
 private:
     HDC screenHDC;
