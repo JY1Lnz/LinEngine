@@ -7,6 +7,7 @@
 #include "Window.h"
 #include "Model.h"
 #include "Math.h"
+#include "Camera.h"
 
 class Renderer
 {
@@ -67,7 +68,7 @@ public:
         return true;
     }
 
-    void CalModel(float angle, float scale)
+    void SetModelMatrix(float angle, float scale)
     {
         angle = angle * LIN_PI / 180.f;
 
@@ -84,14 +85,63 @@ public:
             {0, 0, scale, 0},
             {0, 0, 0, 1}
             });
-        
 
         m4f translate_m({
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+            });
+        
+        model = translate_m * rotation_m * scale_m;
+    }
+
+    void SetViewMatrix(const Camera* camera)
+    {
+        const vec3f& pos = camera->GetPos();
+        m4f translate_m({
+            {1, 0, 0, -pos.x},
+            {0, 1, 0, -pos.y},
+            {0, 0, 1, -pos.z},
+            {0, 0, 0, 1}
+            });
+        m4f inv_m({
+            {1, 0, 0, 0},
+            {0, 1, 0, 0},
+            {0, 0, -1, 0},
+            {0, 0, 0, 1}
+            });
+        view = inv_m * translate_m;
+    }
+
+    void SetProjectionMatrix(const Camera* camera)
+    {
+        // 先把视锥的远平面挤成和近平面相同的xy，再做一个正交投影
+        float zNear = camera->GetZNear();
+        float zFar = camera->GetZFar();
+        float aspect = camera->GetAspect();
+        float fov = camera->GetFov();
+        m4f perspective_m({
+            {zNear, 0, 0, 0},
+            {0, zNear, 0, 0},
+            {0, 0, zNear + zFar, -(zNear * zFar)},
+            {0, 0, 1, 0}
+            });
+        float halve = fov / 2.0f * acos(-1) / 180.0f; // 一半fov的弧度
+        float top = tan(halve) * zNear;
+        float bottom = -top;
+        float right = top * aspect;
+        float left = -right;
+        m4f orthographic_translate_m({
+            {1, 0, 0, -(left + right) / 2},
+            {0, 1, 0, -(bottom + top) / 2},
+            {0, 0, 1, -(zNear + zFar) / 2},
+            {0, 0, 0, 1}
+            });
+        m4f orthographic_translate_m({
 
             });
     }
-
-
 
 private:
     m4f model;      // 模型矩阵
