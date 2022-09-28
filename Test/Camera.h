@@ -38,8 +38,11 @@ public:
 	}
 
 
-private:
+//private:
 	vec3f position_;
+	vec3f up;
+	vec3f right;
+	vec3f front;
 	float zNear_;
 	float zFar_;
 	float fov_;
