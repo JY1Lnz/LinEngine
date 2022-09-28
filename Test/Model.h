@@ -81,6 +81,21 @@ public:
 		}
 	}
 
+	Model()
+		: name_("None")
+	{
+	}
+
+	void AddVertex(const vec3f& v)
+	{
+		vertex_.push_back(v);
+	}
+
+	void AddFace(std::vector<vec3i> f)
+	{
+		face_.push_back(f);
+	}
+
 	int GetFaceSize() const { return face_.size(); }
 
 	const vec3f& GetVertex(int f, int n) const

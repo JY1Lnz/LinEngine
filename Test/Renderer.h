@@ -56,6 +56,7 @@ public:
                 Triangle tr;
                 for (int j = 0; j < 3; ++j)
                     tr[j] = model.GetVertex(i, j);
+
                 DrawTriangle(tr);
             }
         }
