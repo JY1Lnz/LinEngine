@@ -58,8 +58,12 @@ public:
         UpdateWindow(window_);
     }
 
-    HDC GetHDC() const { return hdc; }
-    HDC GetScreenHDC() const { return screenHDC; }
+    HDC     GetHDC() const { return hdc; }
+    HDC     GetScreenHDC() const { return screenHDC; }
+    void    CleanHDC()
+    {
+
+    }
 
     ~Window() = default;
 

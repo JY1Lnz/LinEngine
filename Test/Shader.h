@@ -52,6 +52,9 @@ public:
             });
 
         model = translate_m * rotation_m * scale_m;
+        //std::cout << "model :" << std::endl;
+        //std::cout << model << std::endl;
+        //std::cout << rotation_m << std::endl;
     }
 
     void SetViewMatrix(const Camera* camera)
@@ -64,6 +67,8 @@ public:
             });
 
         view = view_m;
+        //std::cout << "ViewMatrix :" << std::endl;
+        //std::cout << view << std::endl;
     }
 
     void SetProjectionMatrix(const Camera* camera)
@@ -97,6 +102,8 @@ public:
             });
 
         projection = orthographic_scale_m * orthographic_translate_m * perspective_m;
+        //std::cout << "projection :" << std::endl;
+        //std::cout << projection << std::endl;
     }
 
 protected:

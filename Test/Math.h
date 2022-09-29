@@ -207,6 +207,19 @@ public:
         assert(i >= 0 && i < row);
         return val[i];
     }
+
+    friend std::ostream& operator<<(std::ostream& output, const Matrix<T, row, col>& m)
+    {
+        for (int i = 0; i < row; ++i)
+        {
+            for (int j = 0; j < col; ++j)
+            {
+                output << m.val[i][j] << ' ';
+            }
+            output << '\n';
+        }
+        return output;
+    }
 };
 
 template<typename T, size_t R1, size_t C1, size_t C2>

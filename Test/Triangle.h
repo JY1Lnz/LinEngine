@@ -45,6 +45,11 @@ public:
         return true;
     }
 
+    vec3f GetBaryCentric2D(vec3f point) const
+    {
+        return barycentric2D(val_[0], val_[1], val_[2], point);
+    }
+
     vec3f&          operator[](int i)
     {
         return val_[i];

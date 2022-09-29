@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Mesh.h"
 #include "Shader.h" 
+#include "perf.h"
 
 class Renderer
 {
@@ -47,6 +48,10 @@ public:
             RGB(color.r, color.g, color.b));
     }
 
+    void DrawRect()
+    {
+    }
+
     void DrawTriangle(const Triangle& triangle)
     {
         vec3f min_p(triangle.GetPoint(0)), max_p(triangle.GetPoint(0));
@@ -71,6 +76,7 @@ public:
 
     void DrawMeshTriangle(V2F v2f[3], const IShader& shader)
     {
+        //CalTime _("Draw Tri");
         Triangle tri({vec423(v2f[0].window_pos), vec423(v2f[1].window_pos), vec423(v2f[2].window_pos)});
         vec3f min_p(tri.GetPoint(0)), max_p(tri.GetPoint(0));
         tri.ForEach([&](vec3f p) -> void {
@@ -84,10 +90,11 @@ public:
         {
             for (int y = min_p.y; y <= max_p.y; ++y)
             {
-                if (tri.In({ (float)x, (float)y, (float)0 }))
-                {
-                    DrawPixel({ x, y }, Color(200, 0, 0));
-                }
+                vec3f bar = tri.GetBaryCentric2D({ (float)x, (float)y, (float)0 });
+                if (bar.x < 0 || bar.y < 0 || bar.z < 0 || bar.x + bar.y + bar.z > 1.f)
+                    continue;
+                vec4f color = v2f[0].color * bar.x + v2f[1].color * bar.y + v2f[2].color * bar.z;
+                DrawPixel({ x, y }, Color(color.x, color.y, color.z, color.w));
             }
         }
              
@@ -102,23 +109,27 @@ public:
 
         for (int i = 0; i < mesh.EBO.size(); i += 3)
         {
+            //CalTime _("every EBO");
             SetViewPort();
             vec4f   p[3];
             vec4f   c[3];
             V2F     v2f[3];
-            std::cout << "P0 : " << p[0] << std::endl;
             for (int j = 0; j < 3; ++j)
             {
                 p[j] = mesh.VBO[mesh.EBO[i + j]];
                 c[j] = mesh.color[mesh.EBO[i + j]];
             }
+            //std::cout << "P0 : " << p[0] << " P1 : " << p[1] << " P2 : " << p[2] << std::endl;
+            //std::cout << " MVP :" << std::endl;
 
             for (int j = 0; j < 3; ++j)
             {
                 v2f[j] = shader.VertexShader(p[j], c[j]);
                 PerspectiveDivision(v2f[j]);
                 v2f[j].window_pos = view_port * v2f[j].window_pos;
+                //std::cout << " P" << j << " : " << v2f[j].window_pos;
             }
+            //std::cout << std::endl;
             DrawMeshTriangle(v2f, shader);
         }
     }
@@ -142,6 +153,11 @@ public:
     {
         model_list_.emplace_back(model_name);
         return true;
+    }
+
+    void Clean()
+    {
+        BitBlt(screenHDC, 0, 0, width_, height_, NULL, NULL, NULL, BLACKNESS);
     }
 
 private:

@@ -13,6 +13,7 @@
 #include "Math.h"
 #include "Model.h"
 #include "Mesh.h"
+#include "perf.h"
 
 const int WindowWidth = 1024, WindowHeight = 1024;
 
@@ -139,7 +140,7 @@ void DoRender()
 	IShader* shader = new TestShader();
 	camera->fov_ = 60;
 	camera->aspect_ = 1;
-	camera->zNear_ = 0.3f;
+	camera->zNear_ = 20.f;
 	camera->zFar_ = 100.f;
 	camera->position_ = { 0, 0, 5 };
 	camera->front = { 0, 0, -1 };
@@ -147,7 +148,8 @@ void DoRender()
 	camera->up = { 0, 1, 0 };
 	shader->SetViewMatrix(camera);
 	shader->SetProjectionMatrix(camera);
-	float angle = 0.0f;
+	//shader->SetModelMatrix(20, 1.0);
+	float angle = 0.f;
 
 	//Run(w, r);
 	MSG msg = {0};
@@ -162,12 +164,22 @@ void DoRender()
 		}
 		else
 		{
-			//r->DrawTriangle(Triangle({ 0, 7, 0 }, { 470, 23, 0 }, { 318, 802, 0 }));
-			//r->DrawModel();
-			if (++cnt <= 1)
-				r->DrawMesh(m, *shader);
+			{
+				//CalTime _("Clean");
+				r->Clean();
+			}
+			angle = angle + 1.f;
+			if (angle >= 360) angle -= 360;
+			shader->SetModelMatrix(angle, 1.0);
+			{
 
-			BitBlt(w->GetHDC(), 0, 0, WindowWidth, WindowHeight, w->GetScreenHDC(), 0, 0, SRCCOPY);
+				//CalTime _("DrawMesh");
+				r->DrawMesh(m, *shader);
+			}
+			{
+				//CalTime _("BitBlt");
+				BitBlt(w->GetHDC(), 0, 0, WindowWidth, WindowHeight, w->GetScreenHDC(), 0, 0, SRCCOPY);
+			}
 		}
 	}
 	
@@ -178,15 +190,8 @@ void DoRender()
 
 void Test()
 {
-	m4f x({
-		{1, 2, 3, 4},
-		{1, 2, 3, 4},
-		{2, 3, 4, 5},
-		{4, 5, 6, 7}
-		});
-	vec4f p(1, 3, 2, 1);
-	auto v = x * p;
-	printVec(v);
+	CalTime("Test");
+	for (int i = 1; i < 100000000; ++i);
 }
 
 int main()
