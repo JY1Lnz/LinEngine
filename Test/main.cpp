@@ -152,6 +152,7 @@ void DoRender()
 	//Run(w, r);
 	MSG msg = {0};
 	SetMesh();
+	int cnt = 0;
 	while( msg.message != WM_QUIT)
 	{
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -163,7 +164,8 @@ void DoRender()
 		{
 			//r->DrawTriangle(Triangle({ 0, 7, 0 }, { 470, 23, 0 }, { 318, 802, 0 }));
 			//r->DrawModel();
-			r->DrawMesh(m, *shader);
+			if (++cnt <= 1)
+				r->DrawMesh(m, *shader);
 
 			BitBlt(w->GetHDC(), 0, 0, WindowWidth, WindowHeight, w->GetScreenHDC(), 0, 0, SRCCOPY);
 		}

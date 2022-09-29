@@ -106,6 +106,7 @@ public:
             vec4f   p[3];
             vec4f   c[3];
             V2F     v2f[3];
+            std::cout << "P0 : " << p[0] << std::endl;
             for (int j = 0; j < 3; ++j)
             {
                 p[j] = mesh.VBO[mesh.EBO[i + j]];

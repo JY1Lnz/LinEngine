@@ -4,6 +4,8 @@
 #include <vector>
 #include <assert.h>
 #include <initializer_list>
+#include <iostream>
+#include <ostream>
 
 #define LIN_PI 3.1415926
 
@@ -156,6 +158,12 @@ struct Vector<T, 4>
     {
         assert(i < 4 && i >= 0);
         return val[i];
+    }
+
+    friend std::ostream& operator<<(std::ostream& output, const Vector<T, 4>& vec)
+    {
+        output << vec.x << ' ' << vec.y << ' ' << vec.z << ' ' << vec.w;
+        return output;
     }
 };
 
