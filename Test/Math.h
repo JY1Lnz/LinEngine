@@ -113,11 +113,27 @@ struct Vector<T, 3>
     {
         return Vector<T, 3>(y * rhs.z - rhs.y * z, - (x * rhs.z - rhs.x * z), x * rhs.y - rhs.x * y);
     }
+
+    Vector<T, 3> operator - () const
+    {
+        return Vector<T, 3>(-x, -y, -z);
+    }
 };
 
 template<typename T>
 struct Vector<T, 4>
 {
+    Vector(std::initializer_list<T> initialize)
+    {
+        for (int i = 0;i < 4; ++i)
+            val[i] = *(initialize.begin() + i);
+    }
+    Vector(T x, T y, T z, T w)
+        : x(x), y(y), z(z), w(w)
+    {}
+    Vector()
+        : x(), y(), z(), w()
+    {}
     union 
     {
         struct { T x, y, z, w; };
@@ -152,7 +168,7 @@ public:
     {
         for (int i = 0; i < row; ++i)
         {
-            val[i] = initialize[i];
+            val[i] = *(initialize.begin() + i);
         }
     }
     Matrix(const Matrix<T, row, col>& rhs)
@@ -195,6 +211,8 @@ Matrix<T, R1, C2> operator*(const Matrix<T, R1, C1>& lhs, const Matrix<T, C1, C2
     return res;
 }
 
+
+
 typedef Vector<float, 2> vec2f;
 typedef Vector<int, 2>   vec2i;
 typedef Vector<float, 3> vec3f;
@@ -202,6 +220,50 @@ typedef Vector<int, 3>   vec3i;
 typedef Vector<float, 4> vec4f;
 
 typedef Matrix<float, 4, 4> m4f;
+
+template<typename T, size_t L>
+Vector<T, L> operator + (const Vector<T, L>& lhs, const Vector<T, L>& rhs)
+{
+    Vector<T, L> res;
+    for (int i = 0; i < L; ++i)
+        res[i] = lhs[i] + rhs[i];
+    return res;
+}
+
+template<typename T, size_t L>
+Vector<T, L> operator - (const Vector<T, L>& lhs, const Vector<T, L>& rhs)
+{
+    Vector<T, L> res;
+    for (int i = 0; i < L; ++i)
+        res[i] = lhs[i] - rhs[i];
+    return res;
+}
+
+template<typename T, size_t L>
+Vector<T, L> operator * (const Matrix<T, L, L>& m, const Vector<T, L>& rhs)
+{
+    Vector<T, L> res;
+    for (int i = 0; i < L; ++i)
+        res[i] = m[i] * rhs;
+    return res;
+}
+
+template<typename T, size_t L>
+void printVec(const Vector<T, L>& v)
+{
+    for (int i = 0; i < L; ++i)
+        std::cout << v[i] << ' ';
+    std::cout << std::endl;
+}
+
+template<typename T, size_t L>
+float operator * (const Vector<T, L>& lhs, const Vector<T, L>& rhs)
+{
+    float res = 0;
+    for (int i = 0; i < L; ++i)
+        res += lhs[i] * rhs[i];
+    return res;
+}
 
 vec3f barycentric2D(vec2f a, vec2f b, vec2f c, vec2f p)
 {
@@ -226,4 +288,13 @@ vec3f barycentric2D(vec3f a, vec3f b, vec3f c, vec3f p)
         ((b.y - c.y) * (a.x - c.x) - (b.x - c.x) * (a.y - c.y));
     res.z = 1 - res.x - res.y;
     return res;
+}
+vec3f vec423(const vec4f& v)
+{
+    return vec3f(v.x / v.w, v.y / v.w, v.z / v.w);
+}
+
+vec4f vec324(const vec3f& v, float w)
+{
+    return vec4f(v.x, v.y, v.z, w);
 }

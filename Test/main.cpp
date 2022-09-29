@@ -12,6 +12,7 @@
 #include "Triangle.h"
 #include "Math.h"
 #include "Model.h"
+#include "Mesh.h"
 
 const int WindowWidth = 1024, WindowHeight = 1024;
 
@@ -22,6 +23,92 @@ const int WindowWidth = 1024, WindowHeight = 1024;
 // |
 // v
 // y
+
+Mesh m;
+
+Mesh CreatePlane(const vec3f& leftTop, const vec3f& leftBottom, const vec3f& rightBottom, const vec3f& rightTop, const vec3f& normal) {
+	Mesh result(4, 6);
+	result.VBO[0] = vec324(leftTop, 1.0f);
+	result.color[0] = vec4f(255, 0, 0, 255);
+	result.VBO[1] = vec324(rightTop, 1.0f);
+	result.color[1] = vec4f(0, 255, 0, 255);
+	result.VBO[2] = vec324(rightBottom, 1.0f);
+	result.color[2] = vec4f(0, 0, 255, 0);
+	result.VBO[3] = vec324(leftBottom, 1.0f);
+	result.color[3] = vec4f(255, 0, 255, 255);
+	//绘制三角形的顺序是 左上->右下->右下 左上->左下->右上 都是逆时针方向 
+	result.EBO[0] = 0;
+	result.EBO[1] = 2;
+	result.EBO[2] = 1;
+	result.EBO[3] = 0;
+	result.EBO[4] = 3;
+	result.EBO[5] = 2;
+	return result;
+}
+
+Mesh CreateBox(const vec3f& center, float radius) {
+	Mesh result;
+	Mesh front = CreatePlane(
+		center + vec3f(-radius, radius, radius),
+		center + vec3f(-radius, -radius, radius),
+		center + vec3f(radius, -radius, radius),
+		center + vec3f(radius, radius, radius),
+		vec3f(0, 0, 1)
+	);
+	result.AddMesh(front);
+
+	Mesh left = CreatePlane(
+		center + vec3f(-radius, radius, -radius),
+		center + vec3f(-radius, -radius, -radius),
+		center + vec3f(-radius, -radius, radius),
+		center + vec3f(-radius, radius, radius),
+		vec3f(-1, 0, 0)
+	);
+	result.AddMesh(left);
+
+	Mesh right = CreatePlane(
+		center + vec3f(radius, radius, radius),
+		center + vec3f(radius, -radius, radius),
+		center + vec3f(radius, -radius, -radius),
+		center + vec3f(radius, radius, -radius),
+		vec3f(1, 0, 0)
+	);
+	result.AddMesh(right);
+
+	Mesh back = CreatePlane(
+		center + vec3f(radius, radius, -radius),
+		center + vec3f(radius, -radius, -radius),
+		center + vec3f(-radius, -radius, -radius),
+		center + vec3f(-radius, radius, -radius),
+		vec3f(0, 0, -1)
+	);
+	result.AddMesh(back);
+
+	Mesh up = CreatePlane(
+		center + vec3f(-radius, radius, -radius),
+		center + vec3f(-radius, radius, radius),
+		center + vec3f(radius, radius, radius),
+		center + vec3f(radius, radius, -radius),
+		vec3f(0, 1, 0)
+	);
+	result.AddMesh(up);
+
+	Mesh down = CreatePlane(
+		center + vec3f(-radius, -radius, radius),
+		center + vec3f(-radius, -radius, -radius),
+		center + vec3f(radius, -radius, -radius),
+		center + vec3f(radius, -radius, radius),
+		vec3f(0, -1, 0)
+	);
+	result.AddMesh(down);
+
+	return result;
+}
+
+void SetMesh()
+{
+	m = CreateBox(vec3f(0, 0, 0), 1);
+}
 
 void Run(Window* w, Renderer* r)
 {
@@ -58,12 +145,21 @@ void DoRender()
 
 void Test()
 {
+	m4f x({
+		{1, 2, 3, 4},
+		{1, 2, 3, 4},
+		{2, 3, 4, 5},
+		{4, 5, 6, 7}
+		});
+	vec4f p(1, 3, 2, 1);
+	auto v = x * p;
+	printVec(v);
 }
 
 int main()
 {
 	//Test();
-	DoRender();
+	//DoRender();
 
 	return 0;
 }
