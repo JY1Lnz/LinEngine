@@ -135,10 +135,41 @@ void DoRender()
 {
 	Window* w = new Window(WindowWidth, WindowHeight, "JYL");
 	Renderer* r = new Renderer(w->GetScreenHDC(), WindowWidth, WindowHeight);
-	r->AddModel("african_head.obj");
+	Camera* camera = new Camera();
+	IShader* shader = new TestShader();
+	camera->fov_ = 60;
+	camera->aspect_ = 1;
+	camera->zNear_ = 0.3f;
+	camera->zFar_ = 100.f;
+	camera->position_ = { 0, 0, 5 };
+	camera->front = { 0, 0, -1 };
+	camera->right = { 1, 0, 0 };
+	camera->up = { 0, 1, 0 };
+	shader->SetViewMatrix(camera);
+	shader->SetProjectionMatrix(camera);
+	float angle = 0.0f;
 
-	Run(w, r);
+	//Run(w, r);
+	MSG msg = {0};
+	SetMesh();
+	while( msg.message != WM_QUIT)
+	{
+		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			//r->DrawTriangle(Triangle({ 0, 7, 0 }, { 470, 23, 0 }, { 318, 802, 0 }));
+			//r->DrawModel();
+			r->DrawMesh(m, *shader);
+
+			BitBlt(w->GetHDC(), 0, 0, WindowWidth, WindowHeight, w->GetScreenHDC(), 0, 0, SRCCOPY);
+		}
+	}
 	
+	delete camera;
 	delete w;
 	delete r;
 }
@@ -159,7 +190,7 @@ void Test()
 int main()
 {
 	//Test();
-	//DoRender();
+	DoRender();
 
 	return 0;
 }

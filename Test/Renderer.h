@@ -22,6 +22,25 @@ public:
 
     }
 
+    void PerspectiveDivision(V2F& v)
+    {
+        // Í¸ÊÓ³ý·¨
+        v.window_pos = v.window_pos / v.window_pos.w;
+        v.window_pos.w = 1.0f;
+        v.window_pos.z = (v.window_pos.z + 1.0f) * 0.5f;
+    }
+
+    void SetViewPort()
+    {
+        m4f result({
+            {width_ / 2.f, 0, 0, width_ / 2.f},
+            {0, height_ / 2.f, 0, height_ / 2.f},
+            {0, 0, 1, 0},
+            {0, 0, 0, 1}
+            });
+        view_port = result;
+    }
+
     void DrawPixel(vec2i p, const Color& color)
     {
         SetPixel(screenHDC, p.x, p.y,
@@ -38,7 +57,7 @@ public:
             max_p.x = max(max_p.x, p.x);
             max_p.y = max(max_p.y, p.y);
             });
-        for (int x = min_p.x; x <= max_p.y; ++x)
+        for (int x = min_p.x; x <= max_p.x; ++x)
         {
             for (int y = min_p.y; y <= max_p.y; ++y)
             {
@@ -50,7 +69,31 @@ public:
         }
     }
 
-    void DrawMesh(const Mesh& mesh)
+    void DrawMeshTriangle(V2F v2f[3], const IShader& shader)
+    {
+        Triangle tri({vec423(v2f[0].window_pos), vec423(v2f[1].window_pos), vec423(v2f[2].window_pos)});
+        vec3f min_p(tri.GetPoint(0)), max_p(tri.GetPoint(0));
+        tri.ForEach([&](vec3f p) -> void {
+            min_p.x = min(min_p.x, p.x);
+            min_p.y = min(min_p.y, p.y);
+
+            max_p.x = max(max_p.x, p.x);
+            max_p.y = max(max_p.y, p.y);
+            });
+        for (int x = min_p.x; x <= max_p.x; ++x)
+        {
+            for (int y = min_p.y; y <= max_p.y; ++y)
+            {
+                if (tri.In({ (float)x, (float)y, (float)0 }))
+                {
+                    DrawPixel({ x, y }, Color(200, 0, 0));
+                }
+            }
+        }
+             
+    }
+
+    void DrawMesh(const Mesh& mesh, const IShader& shader)
     {
         if (mesh.EBO.empty())
         {
@@ -59,13 +102,23 @@ public:
 
         for (int i = 0; i < mesh.EBO.size(); i += 3)
         {
-            vec4f p[3];
-            vec4f c[3];
+            SetViewPort();
+            vec4f   p[3];
+            vec4f   c[3];
+            V2F     v2f[3];
             for (int j = 0; j < 3; ++j)
             {
                 p[j] = mesh.VBO[mesh.EBO[i + j]];
                 c[j] = mesh.color[mesh.EBO[i + j]];
             }
+
+            for (int j = 0; j < 3; ++j)
+            {
+                v2f[j] = shader.VertexShader(p[j], c[j]);
+                PerspectiveDivision(v2f[j]);
+                v2f[j].window_pos = view_port * v2f[j].window_pos;
+            }
+            DrawMeshTriangle(v2f, shader);
         }
     }
 
@@ -93,6 +146,7 @@ public:
 private:
     HDC screenHDC;
     std::vector<Model> model_list_;
+    m4f view_port;
 
 private:
     int width_;

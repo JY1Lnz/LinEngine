@@ -14,11 +14,12 @@ public:
 	Mesh(const int& vNum, const int& iNum) {
 		VBO.resize(vNum);
 		EBO.resize(iNum);
+		color.resize(iNum);
 	}
 	~Mesh() = default;
 
 	Mesh(const Mesh& mesh)
-		:VBO(mesh.VBO), EBO(mesh.EBO) {}
+		:VBO(mesh.VBO), EBO(mesh.EBO), color(mesh.color){}
 
 	Mesh& operator=(const Mesh& mesh)
 	{
@@ -27,6 +28,7 @@ public:
 		//Vertex没有指针成员，浅复制就可以了
 		VBO = mesh.VBO;
 		EBO = mesh.EBO;
+		color = mesh.color;
 		return *this;
 	}
 	Mesh& operator+=(const Mesh& mesh)
@@ -38,6 +40,7 @@ public:
 		int offset = VBO.size();
 		VBO.insert(VBO.end(), mesh.VBO.begin(), mesh.VBO.end());
 		EBO.reserve(EBO.size() + mesh.EBO.size());
+		color.insert(color.end(), mesh.color.begin(), mesh.color.end());
 		for (int i = 0; i < mesh.EBO.size(); i++) {
 			EBO.push_back(mesh.EBO[i] + offset);
 		}

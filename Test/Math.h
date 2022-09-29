@@ -37,6 +37,14 @@ public:
         return val[i];
     }
 
+    Vector<T, L>& operator /=(const T& div)
+    {
+        for (int i = 0; i < L; ++i)
+        {
+            val[i] /= div;
+        }
+    }
+
 private:
     T val[L];
 };
@@ -262,6 +270,28 @@ float operator * (const Vector<T, L>& lhs, const Vector<T, L>& rhs)
     float res = 0;
     for (int i = 0; i < L; ++i)
         res += lhs[i] * rhs[i];
+    return res;
+}
+
+template<typename T, size_t L>
+Vector<T, L> operator * (const Vector<T, L>& lhs, const T& div)
+{
+    Vector<T, L> res(lhs);
+    for (int i = 0; i < L; ++i)
+    {
+        res[i] *= div;
+    }
+    return res;
+}
+
+template<typename T, size_t L>
+Vector<T, L> operator / (const Vector<T, L>& lhs, const T& div)
+{
+    Vector<T, L> res(lhs);
+    for (int i = 0; i < L; ++i)
+    {
+        res[i] /= div;
+    }
     return res;
 }
 

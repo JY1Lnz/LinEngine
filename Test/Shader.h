@@ -16,13 +16,13 @@ class IShader
 {
 public:
     IShader()
-        : model(), view(), projection(), viewport()
+        : model(), view(), projection()
     {
 
     }
 
-    virtual V2F VertexShader(const vec4f& v, const vec4f& color) = 0;
-    virtual vec4f FragmentShader(const V2F& v2f) = 0;
+    virtual V2F VertexShader(const vec4f& v, const vec4f& color) const = 0;
+    virtual vec4f FragmentShader(const V2F& v2f) const = 0;
 
 
 public:
@@ -103,7 +103,6 @@ protected:
     m4f model;      // 模型矩阵
     m4f view;       // 视口矩阵
     m4f projection; // 投影矩阵
-    m4f viewport;   // 
 };
 
 class TestShader : public IShader
@@ -115,17 +114,18 @@ public:
 
     }
 
-    virtual V2F VertexShader(const vec4f& v, const vec4f& color) override
+    virtual V2F VertexShader(const vec4f& v, const vec4f& color) const override
     {
         V2F v2f;
         v2f.world_pos = model * v;
         v2f.window_pos = projection * view * v2f.world_pos;
         v2f.color = color;
+        return v2f;
     }
 
-    virtual vec4f FragmentShader(const V2F& v2f) override
+    virtual vec4f FragmentShader(const V2F& v2f) const override
     {
-
+        return v2f.color;
     }
 
 };
