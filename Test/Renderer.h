@@ -127,7 +127,7 @@ public:
                 p[j] = mesh.VBO[mesh.EBO[i + j]];
                 c[j] = mesh.color[mesh.EBO[i + j]];
             }
-            std::cout << "P0 : " << p[0] << " P1 : " << p[1] << " P2 : " << p[2] << std::endl;
+            //std::cout << "P0 : " << p[0] << " P1 : " << p[1] << " P2 : " << p[2] << std::endl;
             //std::cout << " MVP :" << std::endl;
 
             for (int j = 0; j < 3; ++j)
@@ -139,7 +139,7 @@ public:
             }
             //std::cout << std::endl;
             DrawMeshTriangle(v2f, shader);
-            break;
+            //break;
         }
     }
 

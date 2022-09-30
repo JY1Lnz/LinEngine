@@ -14,8 +14,10 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "perf.h"
+#include "Input.h"
 
 const int WindowWidth = 1024, WindowHeight = 1024;
+#define POS_OFFSET 0.1f
 
 
 // --------> x
@@ -111,9 +113,38 @@ void SetMesh()
 	m = CreateBox(vec3f(0, 0, 0), 1);
 }
 
-void UpdateController()
+void UpdateController(Camera* camera, IShader* shader)
 {
-
+	if (IS_KEY_DOWN('W'))
+	{
+		camera->position_.z += POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
+	if (IS_KEY_DOWN('S'))
+	{
+		camera->position_.z -= POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
+	if (IS_KEY_DOWN('A'))
+	{
+		camera->position_.x -= POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
+	if (IS_KEY_DOWN('D'))
+	{
+		camera->position_.x += POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
+	if (IS_KEY_DOWN('E'))
+	{
+		camera->position_.y += POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
+	if (IS_KEY_DOWN('Q'))
+	{
+		camera->position_.y -= POS_OFFSET;
+		shader->SetViewMatrix(camera);
+	}
 }
 
 void Run(Window* w, Renderer* r)
@@ -155,6 +186,7 @@ void DoRender()
 	shader->SetProjectionMatrix(camera);
 	shader->SetModelMatrix(0, 1.0);
 	float angle = 0.f;
+	float x_offset = 0, y_offset = 0, z_offset = 0;
 
 	//Run(w, r);
 	MSG msg = {0};
@@ -162,6 +194,9 @@ void DoRender()
 	int cnt = 0;
 	while( msg.message != WM_QUIT)
 	{
+
+		UpdateController(camera, shader);
+
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
