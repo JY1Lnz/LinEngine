@@ -11,14 +11,16 @@
 #include "Mesh.h"
 #include "Shader.h" 
 #include "perf.h"
+#include "Buffer.h"
 
 class Renderer
 {
 public:
     Renderer(HDC hdc, int w, int h)
-        :screenHDC(hdc),
-        width_(w),
-        height_(h)
+        : screenHDC(hdc)
+        , width_(w)
+        , height_(h)
+        , buffer(w, h)
     {
 
     }
@@ -94,7 +96,13 @@ public:
                 if (bar.x < 0 || bar.y < 0 || bar.z < 0 || bar.x + bar.y + bar.z > 1.f)
                     continue;
                 vec4f color = v2f[0].color * bar.x + v2f[1].color * bar.y + v2f[2].color * bar.z;
-                DrawPixel({ x, y }, Color(color.x, color.y, color.z, color.w));
+                float depth = v2f[0].world_pos.z * bar.x + v2f[1].world_pos.z * bar.y + v2f[2].world_pos.z * bar.z;
+                // NDC 中使用左手系, 越远深度越大
+                if (depth < buffer.Get(x, y))
+                {
+                    buffer.Set(x, y, depth);
+                    DrawPixel({ x, y }, Color(color.x, color.y, color.z, color.w));
+                }
             }
         }
              
@@ -119,7 +127,7 @@ public:
                 p[j] = mesh.VBO[mesh.EBO[i + j]];
                 c[j] = mesh.color[mesh.EBO[i + j]];
             }
-            //std::cout << "P0 : " << p[0] << " P1 : " << p[1] << " P2 : " << p[2] << std::endl;
+            std::cout << "P0 : " << p[0] << " P1 : " << p[1] << " P2 : " << p[2] << std::endl;
             //std::cout << " MVP :" << std::endl;
 
             for (int j = 0; j < 3; ++j)
@@ -131,6 +139,7 @@ public:
             }
             //std::cout << std::endl;
             DrawMeshTriangle(v2f, shader);
+            break;
         }
     }
 
@@ -158,12 +167,14 @@ public:
     void Clean()
     {
         BitBlt(screenHDC, 0, 0, width_, height_, NULL, NULL, NULL, BLACKNESS);
+        buffer.CleanMax();
     }
 
 private:
-    HDC screenHDC;
-    std::vector<Model> model_list_;
-    m4f view_port;
+    HDC                  screenHDC;
+    std::vector<Model>   model_list_;
+    m4f                  view_port;
+    DepthBuffer          buffer;
 
 private:
     int width_;

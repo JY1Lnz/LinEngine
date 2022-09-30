@@ -1,5 +1,7 @@
 #pragma
 
+#include <iostream>
+
 #include "Math.h"
 #include "Camera.h"
 
@@ -30,7 +32,14 @@ public:
     {
         angle = angle * LIN_PI / 180.f;
 
-        m4f rotation_m({
+        m4f rotation_x_m({
+            {1, 0, 0, 0},
+            {0, cos(angle), sin(angle), 0},
+            {0, -sin(angle), cos(angle), 0},
+            {0, 0, 0, 1}
+            });
+
+        m4f rotation_y_m({
             {cos(angle), 0, sin(angle), 0},
             {0, 1, 0, 0},
             {-sin(angle), 0, cos(angle), 0},
@@ -51,7 +60,7 @@ public:
             {0, 0, 0, 1}
             });
 
-        model = translate_m * rotation_m * scale_m;
+        model = translate_m * rotation_y_m * rotation_x_m * scale_m;
         //std::cout << "model :" << std::endl;
         //std::cout << model << std::endl;
         //std::cout << rotation_m << std::endl;
@@ -124,9 +133,24 @@ public:
     virtual V2F VertexShader(const vec4f& v, const vec4f& color) const override
     {
         V2F v2f;
+#ifdef _DEBUG
+        std::cout << "VertexShader" << std::endl;
+        std::cout << "  P : " << v << std::endl;
+        v2f.world_pos = model * v;
+        std::cout << "  P -> model transform: " << v2f.world_pos << std::endl;
+        v2f.world_pos = view * model * v;
+        std::cout << "  P -> model, view transform: " << v2f.world_pos << std::endl;
+        v2f.world_pos = projection * view * model * v;
+        std::cout << "  P -> model, view, projection transform: " << v2f.world_pos << std::endl;
+
+
+#else
         v2f.world_pos = model * v;
         v2f.window_pos = projection * view * v2f.world_pos;
+
+#endif // DEBUG
         v2f.color = color;
+
         return v2f;
     }
 

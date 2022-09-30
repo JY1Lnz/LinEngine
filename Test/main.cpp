@@ -27,16 +27,16 @@ const int WindowWidth = 1024, WindowHeight = 1024;
 
 Mesh m;
 
-Mesh CreatePlane(const vec3f& leftTop, const vec3f& leftBottom, const vec3f& rightBottom, const vec3f& rightTop, const vec3f& normal) {
+Mesh CreatePlane(const vec3f& leftTop, const vec3f& leftBottom, const vec3f& rightBottom, const vec3f& rightTop, const vec3f& normal, bool set = false) {
 	Mesh result(4, 6);
 	result.VBO[0] = vec324(leftTop, 1.0f);
-	result.color[0] = vec4f(255, 0, 0, 255);
+	result.color[0] = set ? vec4f(255, 0, 0, 255) : vec4f(255, 0, 0, 255);
 	result.VBO[1] = vec324(rightTop, 1.0f);
-	result.color[1] = vec4f(0, 255, 0, 255);
+	result.color[1] = set ? vec4f(255, 0, 0, 255) : vec4f(0, 255, 0, 255);
 	result.VBO[2] = vec324(rightBottom, 1.0f);
-	result.color[2] = vec4f(0, 0, 255, 0);
+	result.color[2] = set ? vec4f(255, 0, 0, 255) : vec4f(0, 0, 255, 0);
 	result.VBO[3] = vec324(leftBottom, 1.0f);
-	result.color[3] = vec4f(255, 0, 255, 255);
+	result.color[3] = set ? vec4f(255, 0, 0, 255) : vec4f(255, 0, 255, 255);
 	//绘制三角形的顺序是 左上->右下->右下 左上->左下->右上 都是逆时针方向 
 	result.EBO[0] = 0;
 	result.EBO[1] = 2;
@@ -50,55 +50,55 @@ Mesh CreatePlane(const vec3f& leftTop, const vec3f& leftBottom, const vec3f& rig
 Mesh CreateBox(const vec3f& center, float radius) {
 	Mesh result;
 	Mesh front = CreatePlane(
-		center + vec3f(-radius, radius, radius),
-		center + vec3f(-radius, -radius, radius),
-		center + vec3f(radius, -radius, radius),
-		center + vec3f(radius, radius, radius),
-		vec3f(0, 0, 1)
+		center + vec3f(-radius, radius, -radius),
+		center + vec3f(-radius, -radius, -radius),
+		center + vec3f(radius, -radius, -radius),
+		center + vec3f(radius, radius, -radius),
+		vec3f(0, 0, 1), true
 	);
 	result.AddMesh(front);
 
 	Mesh left = CreatePlane(
-		center + vec3f(-radius, radius, -radius),
-		center + vec3f(-radius, -radius, -radius),
-		center + vec3f(-radius, -radius, radius),
 		center + vec3f(-radius, radius, radius),
+		center + vec3f(-radius, -radius, radius),
+		center + vec3f(-radius, -radius, -radius),
+		center + vec3f(-radius, radius, -radius),
 		vec3f(-1, 0, 0)
 	);
 	result.AddMesh(left);
 
 	Mesh right = CreatePlane(
-		center + vec3f(radius, radius, radius),
-		center + vec3f(radius, -radius, radius),
-		center + vec3f(radius, -radius, -radius),
 		center + vec3f(radius, radius, -radius),
+		center + vec3f(radius, -radius, -radius),
+		center + vec3f(radius, -radius, radius),
+		center + vec3f(radius, radius, radius),
 		vec3f(1, 0, 0)
 	);
 	result.AddMesh(right);
 
 	Mesh back = CreatePlane(
-		center + vec3f(radius, radius, -radius),
-		center + vec3f(radius, -radius, -radius),
-		center + vec3f(-radius, -radius, -radius),
-		center + vec3f(-radius, radius, -radius),
+		center + vec3f(radius, radius, radius),
+		center + vec3f(radius, -radius, radius),
+		center + vec3f(-radius, -radius, radius),
+		center + vec3f(-radius, radius, radius),
 		vec3f(0, 0, -1)
 	);
 	result.AddMesh(back);
 
 	Mesh up = CreatePlane(
-		center + vec3f(-radius, radius, -radius),
 		center + vec3f(-radius, radius, radius),
-		center + vec3f(radius, radius, radius),
+		center + vec3f(-radius, radius, -radius),
 		center + vec3f(radius, radius, -radius),
+		center + vec3f(radius, radius, radius),
 		vec3f(0, 1, 0)
 	);
 	result.AddMesh(up);
 
 	Mesh down = CreatePlane(
-		center + vec3f(-radius, -radius, radius),
 		center + vec3f(-radius, -radius, -radius),
-		center + vec3f(radius, -radius, -radius),
+		center + vec3f(-radius, -radius, radius),
 		center + vec3f(radius, -radius, radius),
+		center + vec3f(radius, -radius, -radius),
 		vec3f(0, -1, 0)
 	);
 	result.AddMesh(down);
@@ -109,6 +109,11 @@ Mesh CreateBox(const vec3f& center, float radius) {
 void SetMesh()
 {
 	m = CreateBox(vec3f(0, 0, 0), 1);
+}
+
+void UpdateController()
+{
+
 }
 
 void Run(Window* w, Renderer* r)
@@ -148,7 +153,7 @@ void DoRender()
 	camera->up = { 0, 1, 0 };
 	shader->SetViewMatrix(camera);
 	shader->SetProjectionMatrix(camera);
-	//shader->SetModelMatrix(20, 1.0);
+	shader->SetModelMatrix(0, 1.0);
 	float angle = 0.f;
 
 	//Run(w, r);
@@ -170,7 +175,7 @@ void DoRender()
 			}
 			angle = angle + 1.f;
 			if (angle >= 360) angle -= 360;
-			shader->SetModelMatrix(angle, 1.0);
+			//shader->SetModelMatrix(angle, 1.0);
 			{
 
 				//CalTime _("DrawMesh");
@@ -190,8 +195,6 @@ void DoRender()
 
 void Test()
 {
-	CalTime("Test");
-	for (int i = 1; i < 100000000; ++i);
 }
 
 int main()
